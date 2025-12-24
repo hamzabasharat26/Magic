@@ -1,0 +1,23 @@
+# Sample Measurement File - Format Variations
+# This file demonstrates all accepted line format variations
+
+Length from shoulder (A): 56.5
+B = 49.2
+Chest Width (C): 44.0 cm
+D: 46.0x 2
+E = 40.7
+F: 47.0
+G = 43.5
+H: 18.3 cm
+I = 44.7
+J: 20.5
+K = 12.7
+L: 8.0
+M = 6.2
+N: 23.0
+O = 2.2
+P: 5.8 cm
+Q = 2.0
+R: 5.2
+S = 5.0
+T: 3.0

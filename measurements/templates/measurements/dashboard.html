@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Measurement - Magic QC{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-industrial-gray-800">Measurement System</h1>
+        <p class="text-industrial-gray-600 mt-2">Upload and analyze garment measurements with AI-powered quality control</p>
+    </div>
+    <div>
+        <span class="px-4 py-2 text-sm font-semibold bg-green-100 text-green-700 rounded-lg">
+            <i class="fas fa-camera mr-2"></i>System Ready
+        </span>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- File Upload Section -->
+    <div>
+        <div class="bg-white rounded-xl shadow-lg mb-6">
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-t-xl">
+                <h5 class="text-lg font-bold">
+                    <i class="fas fa-upload mr-2"></i>Upload Measurement File
+                </h5>
+            </div>
+            <div class="p-6">
+                <form id="uploadForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label class="block font-semibold text-sm mb-1">Select Size for QC Check:</label>
+                        <select class="w-full px-2 py-1.5 text-sm border border-industrial-gray-300 rounded focus:ring-2 focus:ring-industrial-blue-primary focus:outline-none" id="sizeSelect" name="size" required>
+                            <option value="">Choose size...</option>
+                            <option value="6/7">6/7 Years</option>
+                            <option value="7/8">7/8 Years</option>
+                            <option value="8/9" selected>8/9 Years</option>
+                            <option value="9/10">9/10 Years</option>
+                            <option value="11/12">11/12 Years</option>
+                            <option value="13/14">13/14 Years</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="block font-semibold text-sm mb-1">Upload Measurement File:</label>
+                        <input type="file" class="w-full px-2 py-1.5 text-sm border border-industrial-gray-300 rounded focus:ring-2 focus:ring-industrial-blue-primary focus:outline-none" id="measurementFile" name="measurement_file" accept=".txt,.csv,.jpg,.jpeg,.png" required>
+                        <div class="mt-1 text-xs text-industrial-gray-600">
+                            Supported formats: TXT, CSV, JPG, PNG. File should contain measurements in cm.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="block font-semibold text-sm mb-1">File Format Example:</label>
+                        <div class="bg-industrial-gray-100 rounded p-2">
+                            <div class="text-xs">
+                                <code class="text-industrial-gray-700">
+                                    A: 50.2<br>
+                                    B: 40.1<br>
+                                    C: 35.3<br>
+                                    D: 42.0<br>
+                                    ... etc
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="w-full px-3 py-2 text-sm bg-industrial-green text-white rounded hover:bg-green-700 transition-all" onclick="uploadAndAnalyze()">
+                        <i class="fas fa-play mr-2"></i>Upload & Analyze
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Camera Section -->
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="px-6 py-4 bg-gradient-to-r from-industrial-blue-light to-blue-500 text-white rounded-t-xl">
+                <h5 class="text-lg font-bold">
+                    <i class="fas fa-camera mr-2"></i>AI Camera System
+                </h5>
+            </div>
+            <div class="p-6 text-center">
+                <div class="camera-placeholder">
+                    <i class="fas fa-camera fa-3x text-industrial-gray-400 mb-2"></i>
+                    <h6 class="text-base font-semibold">AI Camera</h6>
+                    <p class="text-industrial-gray-600 text-xs">Camera system ready for live measurement capture</p>
+                    <button class="px-3 py-2 text-sm text-blue-600 border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition-all" onclick="startCamera()">
+                        <i class="fas fa-camera mr-2"></i>Start Camera
+                    </button>
+                </div>
+                
+                <div id="cameraContainer" class="hidden">
+                    <div class="border rounded p-2 mb-2 bg-black">
+                        <video id="video" width="100%" height="250" autoplay playsinline></video>
+                    </div>
+                    <button class="px-3 py-2 text-sm bg-industrial-yellow text-white rounded hover:bg-yellow-600 transition-all mr-2" onclick="captureImage()">
+                        <i class="fas fa-camera mr-2"></i>Capture
+                    </button>
+                    <button class="px-3 py-2 text-sm bg-industrial-gray-500 text-white rounded hover:bg-industrial-gray-600 transition-all" onclick="stopCamera()">
+                        <i class="fas fa-stop mr-2"></i>Stop
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Standard Size Reference & Results -->
+    <div>
+        <!-- Standard Size Reference -->
+        <div class="bg-white rounded-xl shadow-lg mb-6">
+            <div class="px-6 py-4 bg-gradient-to-r from-industrial-blue-light to-blue-500 text-white rounded-t-xl">
+                <h5 class="text-lg font-bold">
+                    <i class="fas fa-table mr-2"></i>Standard Size Reference (Size M)
+                </h5>
+            </div>
+            <div class="p-6">
+                <div class="overflow-y-auto" style="max-height: 350px;">
+                    <table class="min-w-full text-sm border border-industrial-gray-200">
+                        <thead class="bg-industrial-gray-100 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-3 border-b border-industrial-gray-200 text-left font-bold text-industrial-gray-700 uppercase text-xs">Point</th>
+                                <th class="px-3 py-3 border-b border-industrial-gray-200 text-left font-bold text-industrial-gray-700 uppercase text-xs">Measurement</th>
+                                <th class="px-3 py-3 border-b border-industrial-gray-200 text-left font-bold text-industrial-gray-700 uppercase text-xs">Standard (cm)</th>
+                                <th class="px-3 py-3 border-b border-industrial-gray-200 text-left font-bold text-industrial-gray-700 uppercase text-xs">Tolerance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">A</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Length from shoulder</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">50.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">B</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Chest width</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">40.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">C</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Chest width (armholes)</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">35.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">D</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Bottom width</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">42.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">E</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">New width</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">36.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">F</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Back width</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">39.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">G</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Back width (armholes)</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">37.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">H</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Neck width</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">18.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±0.5 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">I</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">Sleeve length</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">30.0</td>
+                                <td class="px-2 py-1.5 border-b border-industrial-gray-100">±1.0 cm</td>
+                            </tr>
+                            <tr class="hover:bg-industrial-gray-50">
+                                <td class="px-2 py-1.5">J</td>
+                                <td class="px-2 py-1.5">Sleeve width</td>
+                                <td class="px-2 py-1.5">19.0</td>
+                                <td class="px-2 py-1.5">±1.0 cm</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- QC Results Section -->
+        <div id="qcResults" class="bg-white rounded-lg shadow-industrial hidden">
+            <div class="px-4 py-2.5 border-b border-industrial-gray-200">
+                <h5 class="font-semibold text-base mb-0">
+                    <i class="fas fa-clipboard-check mr-2"></i>QC Analysis Results
+                </h5>
+            </div>
+            <div class="p-4">
+                <div id="qcStatus" class="text-center mb-3"></div>
+                <div id="qcDetails"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+function uploadAndAnalyze() {
+    const fileInput = document.getElementById('measurementFile');
+    const sizeSelect = document.getElementById('sizeSelect');
+    
+    if (!fileInput.files[0] || !sizeSelect.value) {
+        alert('Please select both a file and a size.');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('measurement_file', fileInput.files[0]);
+    formData.append('size', sizeSelect.value);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch('{% url "upload_analyze" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('qcResults').classList.remove('hidden');
+        if (data.status === 'PASSED') {
+            document.getElementById('qcStatus').innerHTML = '<div class="p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded"><i class="fas fa-check-circle mr-2"></i>QC PASSED</div>';
+        } else {
+            document.getElementById('qcStatus').innerHTML = '<div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded"><i class="fas fa-times-circle mr-2"></i>QC FAILED</div>';
+        }
+        
+        let detailsHTML = '<div class="mt-4"><table class="min-w-full text-xs"><thead class="bg-industrial-gray-100"><tr><th class="px-2 py-2 text-left">Point</th><th class="px-2 py-2 text-left">Measured</th><th class="px-2 py-2 text-left">Standard</th><th class="px-2 py-2 text-left">Status</th></tr></thead><tbody>';
+        
+        for (const [key, value] of Object.entries(data.measurements || {})) {
+            detailsHTML += `<tr class="border-b border-industrial-gray-100"><td class="px-2 py-2">${key}</td><td class="px-2 py-2">${value}</td><td class="px-2 py-2">-</td><td class="px-2 py-2"><span class="px-2 py-1 text-xs bg-green-600 text-white rounded">OK</span></td></tr>`;
+        }
+        
+        detailsHTML += '</tbody></table></div>';
+        document.getElementById('qcDetails').innerHTML = detailsHTML;
+    })
+    .catch(error => {
+        alert('Error uploading file: ' + error);
+    });
+}
+
+function startCamera() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            document.querySelector('.camera-placeholder').classList.add('hidden');
+            document.getElementById('cameraContainer').classList.remove('hidden');
+            document.getElementById('video').srcObject = stream;
+        })
+        .catch(error => {
+            alert('Camera access denied: ' + error);
+        });
+}
+
+function stopCamera() {
+    const video = document.getElementById('video');
+    const stream = video.srcObject;
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    document.querySelector('.camera-placeholder').classList.remove('hidden');
+    document.getElementById('cameraContainer').classList.add('hidden');
+}
+
+function captureImage() {
+    const video = document.getElementById('video');
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    
+    canvas.toBlob(blob => {
+        const formData = new FormData();
+        formData.append('image', blob, 'capture.jpg');
+        formData.append('size', document.getElementById('sizeSelect').value);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+        
+        fetch('{% url "upload_analyze" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('Image captured and analyzed successfully!');
+            stopCamera();
+        });
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

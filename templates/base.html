@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic QC - Garments Measurement Dashboard</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="font-inter text-sm bg-industrial-gray-100">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-1/6 sidebar-gradient text-white fixed left-0 top-0 h-screen overflow-y-auto overflow-x-hidden custom-scrollbar shadow-industrial-lg">
+            <!-- Brand Header -->
+            <div class="bg-white bg-opacity-10 py-4 px-2.5 text-center mb-4">
+                <h3 class="text-xl font-bold flex items-center justify-center gap-2 mb-1">
+                    <i class="fas fa-magic"></i>Magic QC
+                </h3>
+                <p class="text-xs mb-0 text-gray-200">Garments Measurement System</p>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="px-3 flex flex-col">
+                <a href="{% url 'dashboard' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                </a>
+                <a href="{% url 'create_po' %}" class="nav-item {% if 'create-po' in request.path or 'add-product' in request.path %}active{% endif %}">
+                    <i class="fas fa-file-invoice mr-2"></i>Purchase Orders
+                </a>
+                <a href="{% url 'measurement_dashboard' %}" class="nav-item {% if 'measurements' in request.path %}active{% endif %}">
+                    <i class="fas fa-ruler-combined mr-2"></i>Measurements
+                </a>
+                <a href="{% url 'analytics_dashboard' %}" class="nav-item {% if 'analytics' in request.path %}active{% endif %}">
+                    <i class="fas fa-chart-bar mr-2"></i>Analytics
+                </a>
+                {% if user.is_authenticated and user.role == 'admin' %}
+                <a href="{% url 'user_management' %}" class="nav-item {% if 'users' in request.path %}active{% endif %}">
+                    <i class="fas fa-users mr-2"></i>User Management
+                </a>
+                {% endif %}
+                <a href="#" onclick="openSettingsModal()" class="nav-item">
+                    <i class="fas fa-cog mr-2"></i>Settings
+                </a>
+            </nav>
+
+            <!-- Measurement Charts Section -->
+            <div class="px-2 mt-3">
+                <h6 class="text-white text-sm mb-2">
+                    <i class="fas fa-ruler mr-1"></i>Measurement Charts
+                </h6>
+                
+                <!-- Measurement Diagrams -->
+                <div class="bg-white bg-opacity-10 rounded-lg p-2.5 mb-2">
+                    <strong class="block text-center mb-2 text-xs">Diagrams</strong>
+                    <div class="text-center">
+                        <img src="{% static 'images/sweatshirt_measurement1.jpg' %}" 
+                             alt="Sweatshirt Measurement Diagram 1" 
+                             class="max-h-[100px] w-full object-contain cursor-pointer border-2 border-white border-opacity-30 rounded-md mb-2 transition-all duration-300 hover:border-industrial-blue-light hover:scale-105"
+                             onclick="openImageModal('imageModal1')">
+                        <img src="{% static 'images/sweatshirt_measurement2.jpg' %}" 
+                             alt="Sweatshirt Measurement Diagram 2" 
+                             class="max-h-[100px] w-full object-contain cursor-pointer border-2 border-white border-opacity-30 rounded-md transition-all duration-300 hover:border-industrial-blue-light hover:scale-105"
+                             onclick="openImageModal('imageModal2')">
+                    </div>
+                </div>
+
+                <!-- Size Chart Button -->
+                <button type="button" onclick="openSizeChartModal()" class="w-full px-2.5 py-1.5 text-xs text-white border border-white border-opacity-50 rounded hover:bg-white hover:bg-opacity-20 transition-all mb-2">
+                    <i class="fas fa-table mr-1"></i>Size Chart
+                </button>
+
+                <!-- Quick Size Reference -->
+                {% for size in standard_sizes %}
+                <div class="bg-white bg-opacity-10 rounded-lg p-2.5 mb-2 text-xs">
+                    <strong class="block text-xs">{{ size.size }}</strong>
+                    <small class="block text-white text-[11px]">
+                        Chest: {{ size.B_chest_width }}cm<br>Length: {{ size.A_length_from_shoulder }}cm
+                    </small>
+                    <button onclick="showSizeDetails('{{ size.size }}')" class="w-full mt-1 px-2 py-1 text-[11px] text-white border border-white border-opacity-50 rounded hover:bg-white hover:bg-opacity-20 transition-all">
+                        Details
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 ml-[16.666667%] flex flex-col overflow-hidden">
+            <!-- Top Navigation Bar -->
+            <nav class="bg-white border-b border-industrial-gray-200 py-2.5 px-5 flex-shrink-0">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-semibold text-industrial-gray-800">
+                        {% block page_title %}Dashboard{% endblock %}
+                    </span>
+                    <div class="flex items-center gap-3">
+                        {% if user.is_authenticated %}
+                        <span class="text-sm text-industrial-gray-700">
+                            <i class="fas fa-user mr-1"></i>{{ user.username }}
+                            {% if user.role == 'admin' %}
+                                <span class="ml-1 px-2 py-1 text-xs bg-blue-600 text-white rounded">Admin</span>
+                            {% endif %}
+                        </span>
+                        <form method="post" action="{% url 'logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" class="px-2.5 py-1.5 text-xs text-red-600 border border-red-600 rounded hover:bg-red-600 hover:text-white transition-all">
+                                <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-sm text-industrial-gray-700">
+                            <i class="fas fa-user mr-1"></i>Guest
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-5">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-3 p-3 rounded-lg border-l-4 {% if message.tags == 'success' %}bg-green-50 border-green-500 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-500 text-red-800{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-500 text-yellow-800{% else %}bg-blue-50 border-blue-500 text-blue-800{% endif %}">
+                            <div class="flex justify-between items-start">
+                                <span>{{ message }}</span>
+                                <button onclick="this.parentElement.parentElement.remove()" class="text-current opacity-50 hover:opacity-100">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Size Details Modal -->
+    <div id="sizeModal" class="modal-overlay hidden">
+        <div class="modal-dialog max-w-4xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Size Details - <span id="modalSizeLabel"></span></h5>
+                    <button onclick="closeModal('sizeModal')" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body" id="sizeDetailsContent">
+                    <!-- Content will be loaded via AJAX -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complete Size Chart Modal -->
+    <div id="sizeChartModal" class="modal-overlay hidden">
+        <div class="modal-dialog max-w-7xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Complete Size Chart Reference</h5>
+                    <button onclick="closeModal('sizeChartModal')" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h6 class="font-semibold mb-2">Measurement Diagram 1</h6>
+                            <img src="{% static 'images/sweatshirt_measurement1.jpg' %}" 
+                                 alt="Sweatshirt Measurement Diagram 1" 
+                                 class="w-full rounded-lg">
+                        </div>
+                        <div>
+                            <h6 class="font-semibold mb-2">Measurement Diagram 2</h6>
+                            <img src="{% static 'images/sweatshirt_measurement2.jpg' %}" 
+                                 alt="Sweatshirt Measurement Diagram 2" 
+                                 class="w-full rounded-lg">
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6 class="font-semibold mb-3">Measurement Points Legend:</h6>
+                        <div class="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                                <strong>A</strong> - Length from shoulder<br>
+                                <strong>B</strong> - Chest width<br>
+                                <strong>C</strong> - Chest width (armholes)<br>
+                                <strong>D</strong> - Bottom width<br>
+                                <strong>E</strong> - New width<br>
+                                <strong>F</strong> - Back width<br>
+                            </div>
+                            <div>
+                                <strong>G</strong> - Back width (armholes)<br>
+                                <strong>H</strong> - Neck width<br>
+                                <strong>I</strong> - Sleeve length<br>
+                                <strong>J</strong> - Sleeve width<br>
+                                <strong>K</strong> - Sleeve width above cuff<br>
+                                <strong>L</strong> - Sleeve opening<br>
+                            </div>
+                            <div>
+                                <strong>M</strong> - Cuff length<br>
+                                <strong>N</strong> - Armhole<br>
+                                <strong>O</strong> - Back neck drop<br>
+                                <strong>P</strong> - Front neck drop<br>
+                                <strong>Q</strong> - Collar width<br>
+                                <strong>R</strong> - Shoulder drop<br>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modals -->
+    <div id="imageModal1" class="modal-overlay hidden">
+        <div class="modal-dialog max-w-4xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sweatshirt Measurement Diagram 1</h5>
+                    <button onclick="closeModal('imageModal1')" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="{% static 'images/sweatshirt_measurement1.jpg' %}" 
+                         alt="Sweatshirt Measurement Diagram 1" 
+                         class="w-full">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal2" class="modal-overlay hidden">
+        <div class="modal-dialog max-w-4xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sweatshirt Measurement Diagram 2</h5>
+                    <button onclick="closeModal('imageModal2')" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="{% static 'images/sweatshirt_measurement2.jpg' %}" 
+                         alt="Sweatshirt Measurement Diagram 2" 
+                         class="w-full">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal-overlay hidden">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">System Settings</h5>
+                    <button onclick="closeModal('settingsModal')" class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="bg-white rounded-lg p-6 text-center">
+                        <h3 class="text-2xl font-bold mb-3">Settings</h3>
+                        <p class="text-industrial-gray-600 mb-4">System configuration options will be available here.</p>
+                        <i class="fas fa-cogs text-6xl text-industrial-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+        
+        function openSettingsModal() {
+            openModal('settingsModal');
+        }
+        
+        function openSizeChartModal() {
+            openModal('sizeChartModal');
+        }
+        
+        function openImageModal(modalId) {
+            openModal(modalId);
+        }
+        
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+        
+        // ESC key closes modals
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(modal => {
+                    if (!modal.classList.contains('hidden')) {
+                        closeModal(modal.id);
+                    }
+                });
+            }
+        });
+    
+        function showSizeDetails(size) {
+            $('#modalSizeLabel').text(size);
+            $('#sizeDetailsContent').html('<div class="text-center"><div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-industrial-blue-primary border-t-transparent"></div></div>');
+            
+            $.get(`/get-standard-measurements/?size=${size}`, function(data) {
+                if (!data.error) {
+                    let content = '<div class="grid grid-cols-2 gap-4">';
+                    for (const [key, value] of Object.entries(data)) {
+                        if (key !== 'error') {
+                            content += `
+                                <div class="text-sm">
+                                    <strong>${key}:</strong> ${value} cm
+                                </div>
+                            `;
+                        }
+                    }
+                    content += '</div>';
+                    $('#sizeDetailsContent').html(content);
+                } else {
+                    $('#sizeDetailsContent').html('<div class="p-3 bg-red-50 border-l-4 border-red-500 text-red-800 rounded">Size details not found</div>');
+                }
+            });
+            
+            openModal('sizeModal');
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

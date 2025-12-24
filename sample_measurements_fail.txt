@@ -1,0 +1,25 @@
+# Sample Measurement File - Size 8/9 (FAIL - Measurement B out of tolerance)
+# This file demonstrates measurements that will FAIL validation
+# Measurement B (Chest Width) is 51.5 cm, but standard is 49.2 cm
+# Deviation = |51.5 - 49.2| = 2.3 cm > tolerance of 1.0 cm → FAIL
+
+A: 56.5
+B: 51.5
+C: 44.0
+D: 46.0
+E: 40.7
+F: 47.0
+G: 43.5
+H: 18.3
+I: 44.7
+J: 20.5
+K: 12.7
+L: 8.0
+M: 6.2
+N: 23.0
+O: 2.2
+P: 5.8
+Q: 2.0
+R: 5.2
+S: 5.0
+T: 3.0

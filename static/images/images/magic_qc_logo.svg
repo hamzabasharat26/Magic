@@ -1,0 +1,53 @@
+<svg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gearGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2C5282;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1A365D;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="checkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48BB78;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2F855A;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer gear circle -->
+  <circle cx="40" cy="40" r="38" fill="url(#gearGradient)" stroke="#1A365D" stroke-width="2"/>
+  
+  <!-- Gear teeth (12 teeth) -->
+  <g fill="url(#gearGradient)" stroke="#1A365D" stroke-width="1">
+    <rect x="37" y="2" width="6" height="8" rx="1"/>
+    <rect x="57" y="8" width="6" height="8" rx="1" transform="rotate(30 40 40)"/>
+    <rect x="68" y="22" width="6" height="8" rx="1" transform="rotate(60 40 40)"/>
+    <rect x="72" y="37" width="8" height="6" rx="1"/>
+    <rect x="68" y="54" width="6" height="8" rx="1" transform="rotate(120 40 40)"/>
+    <rect x="57" y="68" width="6" height="8" rx="1" transform="rotate(150 40 40)"/>
+    <rect x="37" y="72" width="6" height="8" rx="1"/>
+    <rect x="19" y="68" width="6" height="8" rx="1" transform="rotate(210 40 40)"/>
+    <rect x="8" y="54" width="6" height="8" rx="1" transform="rotate(240 40 40)"/>
+    <rect x="2" y="37" width="8" height="6" rx="1"/>
+    <rect x="8" y="22" width="6" height="8" rx="1" transform="rotate(300 40 40)"/>
+    <rect x="19" y="8" width="6" height="8" rx="1" transform="rotate(330 40 40)"/>
+  </g>
+  
+  <!-- Inner circle -->
+  <circle cx="40" cy="40" r="28" fill="#FFFFFF" stroke="#2C5282" stroke-width="2"/>
+  
+  <!-- QC checkmark -->
+  <path d="M28 38 L35 45 L52 28" 
+        stroke="url(#checkGradient)" 
+        stroke-width="5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        fill="none"/>
+  
+  <!-- Center circle highlight -->
+  <circle cx="40" cy="40" r="20" fill="none" stroke="#E2E8F0" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Magic sparkle effect -->
+  <g fill="#FFD700" opacity="0.8">
+    <circle cx="25" cy="25" r="2"/>
+    <circle cx="55" cy="25" r="1.5"/>
+    <circle cx="25" cy="55" r="1.5"/>
+    <circle cx="58" cy="55" r="2"/>
+  </g>
+</svg>

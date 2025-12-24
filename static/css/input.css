@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Industrial UI Components */
+@layer components {
+  /* Sidebar Gradient Background */
+  .sidebar-gradient {
+    background: linear-gradient(180deg, #2c3e50 0%, #3498db 100%);
+  }
+  
+  /* Stat Card Gradients */
+  .stat-card-purple {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .stat-card-pink {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+  
+  .stat-card-green {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  }
+  
+  /* Button Gradients */
+  .btn-gradient-success {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  }
+  
+  /* Header Gradient */
+  .header-gradient {
+    background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  }
+  
+  /* Scrollbar Styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+  
+  /* Industrial Card */
+  .industrial-card {
+    @apply bg-white rounded-xl border-2 border-industrial-gray-200 shadow-industrial;
+  }
+  
+  /* Industrial Button */
+  .btn-industrial {
+    @apply px-4 py-2 rounded-lg font-semibold transition-all duration-300;
+  }
+  
+  .btn-industrial-primary {
+    @apply btn-industrial bg-industrial-blue-primary text-white hover:bg-industrial-blue-light;
+  }
+  
+  /* Touch Target (Operator Panel) */
+  .touch-target {
+    @apply min-h-touch cursor-pointer;
+  }
+  
+  /* Navigation Item */
+  .nav-item {
+    @apply block px-3 py-2.5 mb-1 text-sm text-white rounded-lg transition-all duration-300 hover:bg-white hover:bg-opacity-20 relative z-10;
+  }
+  
+  .nav-item.active {
+    @apply bg-white bg-opacity-30 font-semibold shadow-md;
+  }
+  
+  /* Stat Cards */
+  .stat-card-primary {
+    @apply bg-white rounded-lg shadow-industrial p-4 border-l-4 border-industrial-blue-primary;
+  }
+  
+  .stat-card-success {
+    @apply bg-white rounded-lg shadow-industrial p-4 border-l-4 border-industrial-green;
+  }
+  
+  .stat-card-info {
+    @apply bg-white rounded-lg shadow-industrial p-4 border-l-4 border-industrial-blue-light;
+  }
+  
+  .stat-card-warning {
+    @apply bg-white rounded-lg shadow-industrial p-4 border-l-4 border-industrial-yellow;
+  }
+  
+  /* Modal Components */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center;
+  }
+  
+  .modal-dialog {
+    @apply relative w-full max-w-lg mx-4;
+  }
+  
+  .modal-content {
+    @apply bg-white rounded-lg shadow-industrial-lg overflow-hidden;
+  }
+  
+  .modal-header {
+    @apply px-6 py-4 border-b border-industrial-gray-200 flex justify-between items-center;
+  }
+  
+  .modal-title {
+    @apply text-lg font-semibold text-industrial-gray-800;
+  }
+  
+  .modal-close {
+    @apply text-2xl font-bold text-industrial-gray-600 hover:text-industrial-gray-800 cursor-pointer transition-colors;
+  }
+  
+  .modal-body {
+    @apply px-6 py-4;
+  }
+  
+  .modal-footer {
+    @apply px-6 py-4 border-t border-industrial-gray-200 flex justify-end gap-2;
+  }
+}

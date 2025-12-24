@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Magic QC - Automatic Garment Size Measurement System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #0A0E27;
+        }
+        
+        /* Background with overlay */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .background-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            filter: blur(4px);
+        }
+        
+        .background-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(10, 25, 55, 0.82) 0%, 
+                rgba(15, 30, 65, 0.75) 50%,
+                rgba(20, 35, 75, 0.82) 100%);
+            backdrop-filter: blur(8px);
+        }
+        
+        /* Main content container */
+        .content-container {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        /* Header with logos */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 60px;
+            width: 100%;
+        }
+        
+        .logo-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-circle {
+            width: 62px;
+            height: 62px;
+            background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 0 0 3px rgba(6, 182, 212, 0.2),
+                0 6px 24px rgba(6, 182, 212, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+        
+        .logo-circle::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(135deg, 
+                rgba(6, 182, 212, 0.3) 0%, 
+                transparent 50%,
+                rgba(8, 145, 178, 0.3) 100%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(8px);
+        }
+        
+        .logo-circle i {
+            color: white;
+            font-size: 30px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        .logo-text {
+            font-size: 34px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+            text-shadow: 
+                0 2px 10px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(6, 182, 212, 0.3);
+        }
+        
+        .logo-right img {
+            height: 50px;
+            width: auto;
+            filter: brightness(1.2) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        }
+        
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            width: 100%;
+        }
+        
+        /* Main heading */
+        .main-heading {
+            font-size: 46px;
+            font-weight: 700;
+            color: white;
+            text-align: center;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+            text-shadow: 
+                0 2px 20px rgba(0, 0, 0, 0.6),
+                0 4px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Subtitle */
+        .subtitle {
+            font-size: 20px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.82);
+            text-align: center;
+            margin-bottom: 50px;
+            letter-spacing: 0.3px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Glassmorphism Login Panel */
+        .login-panel {
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(35px) saturate(180%);
+            -webkit-backdrop-filter: blur(35px) saturate(180%);
+            border-radius: 35px;
+            padding: 50px 60px 55px;
+            box-shadow: 
+                0 12px 48px 0 rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.08),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+                0 0 60px rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            min-width: 480px;
+            max-width: 520px;
+        }
+        
+        .login-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 35px;
+            padding: 1px;
+            background: linear-gradient(145deg, 
+                rgba(255, 255, 255, 0.25) 0%, 
+                rgba(6, 182, 212, 0.15) 30%,
+                rgba(255, 255, 255, 0.08) 50%,
+                rgba(8, 145, 178, 0.15) 70%,
+                rgba(255, 255, 255, 0.2) 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        
+        /* Keypad container */
+        .keypad-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .keypad-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 85px);
+            grid-template-rows: repeat(4, 85px);
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        /* Circular button */
+        .circular-button {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, 
+                rgba(6, 182, 212, 0.38) 0%, 
+                rgba(8, 145, 178, 0.28) 100%);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 
+                0 6px 18px rgba(6, 182, 212, 0.35),
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.25),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+        
+        .circular-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, 
+                rgba(255, 255, 255, 0.22) 0%, 
+                rgba(255, 255, 255, 0.08) 40%,
+                transparent 65%);
+            pointer-events: none;
+        }
+        
+        .circular-button:hover {
+            background: linear-gradient(145deg, 
+                rgba(6, 182, 212, 0.52) 0%, 
+                rgba(8, 145, 178, 0.42) 100%);
+            box-shadow: 
+                0 8px 24px rgba(6, 182, 212, 0.6),
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 2px 0 rgba(255, 255, 255, 0.35),
+                inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px) scale(1.03);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+        
+        .circular-button:active {
+            transform: translateY(0) scale(0.97);
+            box-shadow: 
+                0 2px 10px rgba(6, 182, 212, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Login button */
+        .login-button {
+            width: 100%;
+            max-width: 380px;
+            height: 58px;
+            background: linear-gradient(135deg, #06B6D4 0%, #0284C7 50%, #0891B2 100%);
+            border: none;
+            border-radius: 29px;
+            font-size: 18px;
+            font-weight: 800;
+            color: white;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 32px rgba(6, 182, 212, 0.5),
+                0 4px 16px rgba(6, 182, 212, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .login-button:hover {
+            box-shadow: 
+                0 10px 40px rgba(6, 182, 212, 0.7),
+                0 6px 20px rgba(6, 182, 212, 0.4),
+                0 0 60px rgba(6, 182, 212, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .login-button:hover::before {
+            left: 100%;
+        }
+        
+        .login-button:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.5);
+        }
+        
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        
+        /* Error message */
+        .error-message {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            padding: 18px 28px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+            backdrop-filter: blur(10px);
+            transform: translateX(400px);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-weight: 700;
+            font-size: 15px;
+        }
+        
+        .error-message.show {
+            transform: translateX(0);
+        }
+        
+        .error-message i {
+            font-size: 22px;
+        }
+        
+        /* Success animation */
+        @keyframes success-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.02); }
+        }
+        
+        .success-pulse {
+            animation: success-pulse 0.6s ease;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+        }
+        
+        /* Shake animation for error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .shake {
+            animation: shake 0.4s ease;
+        }
+        
+        /* Hidden input for password */
+        #passwordInput {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+            left: -9999px;
+        }
+        
+        /* Responsive adjustments */
+        @media screen and (max-height: 800px) {
+            .main-heading {
+                font-size: 38px;
+                margin-bottom: 8px;
+            }
+            .subtitle {
+                font-size: 18px;
+                margin-bottom: 35px;
+            }
+            .login-panel {
+                padding: 40px 50px 45px;
+            }
+            .keypad-grid {
+                grid-template-columns: repeat(3, 75px);
+                grid-template-rows: repeat(4, 75px);
+                gap: 12px;
+                margin-bottom: 25px;
+            }
+            .circular-button {
+                width: 75px;
+                height: 75px;
+                font-size: 26px;
+            }
+        }
+        
+        @media screen and (max-width: 1366px) {
+            .main-heading {
+                font-size: 40px;
+            }
+            .login-panel {
+                min-width: 440px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="background-container">
+        <img src="{% static 'images/login.png' %}" alt="Background" class="background-image">
+        <div class="background-overlay"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="content-container">
+        <!-- Header with Logos -->
+        <div class="header">
+            <div class="logo-left">
+                <div class="logo-circle">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="logo-text">MagicQC</div>
+            </div>
+            <div class="logo-right">
+                <img src="{% static 'images/images/logo.png' %}" alt="Robionix Technologies">
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Main Heading -->
+            <h1 class="main-heading">Automatic Garment Size Measurement System</h1>
+            <p class="subtitle">AI-Based Vision Inspection & Size Validation</p>
+            
+            <!-- Glassmorphism Login Panel -->
+            <div class="login-panel">
+                <div class="keypad-container">
+                    <!-- Circular Keypad -->
+                    <div class="keypad-grid">
+                        <!-- Row 1 -->
+                        <div class="circular-button" data-value="1">1</div>
+                        <div class="circular-button" data-value="2">2</div>
+                        <div class="circular-button" data-value="3">3</div>
+                        
+                        <!-- Row 2 -->
+                        <div class="circular-button" data-value="4">4</div>
+                        <div class="circular-button" data-value="5">5</div>
+                        <div class="circular-button" data-value="6">6</div>
+                        
+                        <!-- Row 3 -->
+                        <div class="circular-button" data-value="7">7</div>
+                        <div class="circular-button" data-value="8">8</div>
+                        <div class="circular-button" data-value="9">9</div>
+                        
+                        <!-- Row 4 -->
+                        <div class="circular-button" data-value="clear">*</div>
+                        <div class="circular-button" data-value="0">0</div>
+                        <div class="circular-button" data-value="enter">#</div>
+                    </div>
+                    
+                    <!-- Login Button -->
+                    <button class="login-button" id="loginButton">LOGIN</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            Powered by Robionix Technologies Pvt. Ltd.
+        </div>
+    </div>
+    
+    <!-- Hidden input -->
+    <input type="password" id="passwordInput" maxlength="4">
+    
+    <!-- Error Message -->
+    <div class="error-message" id="errorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Invalid access code. Please try again.</span>
+    </div>
+    
+    <script>
+        let password = '';
+        const maxLength = 4;
+        
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        
+        // Add click event to all circular buttons
+        document.querySelectorAll('.circular-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const value = this.dataset.value;
+                handleKeyPress(value);
+            });
+        });
+        
+        // Login button click
+        document.getElementById('loginButton').addEventListener('click', function() {
+            if (password.length === maxLength) {
+                checkPassword();
+            } else {
+                showError('Please enter 4-digit code');
+            }
+        });
+        
+        function handleKeyPress(value) {
+            if (value === 'clear') {
+                password = '';
+                document.getElementById('passwordInput').value = '';
+            } else if (value === 'enter') {
+                if (password.length === maxLength) {
+                    checkPassword();
+                }
+            } else if (password.length < maxLength) {
+                password += value;
+                document.getElementById('passwordInput').value = password;
+            }
+        }
+        
+        function checkPassword() {
+            const loginButton = document.getElementById('loginButton');
+            loginButton.disabled = true;
+            loginButton.textContent = 'VERIFYING...';
+            
+            // Send PIN to backend for database verification
+            fetch("{% url 'unified_login' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: `pin=${password}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Success - animate and redirect
+                    loginButton.classList.add('success-pulse');
+                    loginButton.textContent = 'SUCCESS';
+                    
+                    setTimeout(() => {
+                        if (data.role === 'admin') {
+                            window.location.href = "{% url 'dashboard' %}";
+                        } else {
+                            window.location.href = "{% url 'operator_panel' %}";
+                        }
+                    }, 600);
+                } else {
+                    // Invalid PIN from database
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'LOGIN';
+                    showError(data.error || 'Invalid access code. Please try again.');
+                    password = '';
+                    document.getElementById('passwordInput').value = '';
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                loginButton.disabled = false;
+                loginButton.textContent = 'LOGIN';
+                showError('Connection error. Please try again.');
+                password = '';
+                document.getElementById('passwordInput').value = '';
+            });
+        }
+        
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.querySelector('span').textContent = message;
+            errorMsg.classList.add('show');
+            
+            const keypad = document.querySelector('.keypad-container');
+            keypad.classList.add('shake');
+            
+            setTimeout(() => {
+                errorMsg.classList.remove('show');
+                keypad.classList.remove('shake');
+            }, 2500);
+        }
+        
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.key >= '0' && e.key <= '9') {
+                handleKeyPress(e.key);
+            } else if (e.key === 'Enter') {
+                if (password.length === maxLength) {
+                    checkPassword();
+                }
+            } else if (e.key === 'Backspace') {
+                handleKeyPress('clear');
+            }
+        });
+        
+        // Prevent form submission on Enter
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (password.length === maxLength) {
+                    checkPassword();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Add Product - Magic QC{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-industrial-gray-800">Add Product to {{ purchase_order.po_number }}</h1>
+    <p class="text-industrial-gray-600 mt-2">Enter product details and measurements</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg">
+            <div class="px-6 py-4 border-b border-industrial-gray-200 bg-gradient-to-r from-green-50 to-white">
+                <h5 class="text-lg font-bold text-industrial-gray-800">
+                    <i class="fas fa-tshirt mr-2 text-industrial-green"></i>Product Details
+                </h5>
+            </div>
+            <div class="p-6">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="space-y-4">
+                        {% for field in form %}
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <p class="text-red-600 text-sm mt-1">{{ field.errors.0 }}</p>
+                                {% endif %}
+                                {% if field.help_text %}
+                                    <p class="text-gray-600 text-xs mt-1">{{ field.help_text }}</p>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-6 flex gap-3">
+                        <button type="submit" name="save" class="px-6 py-3 bg-industrial-green text-white rounded-lg font-semibold hover:bg-green-700 transition-all shadow-md hover:shadow-lg">
+                            <i class="fas fa-save mr-2"></i>Save Product
+                        </button>
+                        <button type="submit" name="add_another" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+                            <i class="fas fa-plus mr-2"></i>Save & Add Another
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="px-6 py-3 bg-industrial-gray-200 text-industrial-gray-700 rounded-lg font-semibold hover:bg-industrial-gray-300 transition-all">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#id_size').change(function() {
+        const size = $(this).val();
+        if (size) {
+            // This will be used later for auto-filling measurements
+            console.log('Size selected:', size);
+        }
+    });
+});
+</script>
+{% endblock %}

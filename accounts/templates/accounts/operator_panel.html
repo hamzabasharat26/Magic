@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC Operator Station - Magic QC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ============================================
+           INDUSTRIAL COLOR PALETTE - PROFESSIONAL
+           ============================================ */
+        :root {
+            /* Primary Colors - Figma/Syncfusion Inspired */
+            --bg-main: #FFFFFF;
+            --bg-sidebar: #FAFBFC;
+            --bg-header: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            --active-state: #10B981;
+            --border-accent: #E2E8F0;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            
+            /* Vibrant Accent Colors */
+            --accent-purple: #667EEA;
+            --accent-blue: #4F46E5;
+            --accent-cyan: #06B6D4;
+            --accent-teal: #14B8A6;
+            --accent-green: #10B981;
+            --accent-orange: #F59E0B;
+            --accent-pink: #EC4899;
+            
+            /* Card Colors */
+            --card-bg: #FFFFFF;
+            --card-hover: #F8FAFC;
+            --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            
+            /* Success/Warning/Error */
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --info: #3B82F6;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-colored: 0 10px 15px -3px rgba(102, 126, 234, 0.3);
+            
+            /* Touch Target */
+            --touch-min: 48px;
+        }
+        
+        /* ============================================
+           BASE RESET & TYPOGRAPHY
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* ============================================
+           FIXED LAYOUT - NO SCROLLING
+           ============================================ */
+        .operator-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        /* ============================================
+           FIXED HEADER - 60PX HEIGHT
+           ============================================ */
+        .operator-header {
+            background: var(--bg-header);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .operator-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .operator-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .operator-header h1 i {
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .operator-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .operator-header .operator-role {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        /* ============================================
+           MAIN CONTENT - FIXED TWO-COLUMN LAYOUT
+           ============================================ */
+        .operator-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 20px;
+            padding: 16px;
+            height: calc(100vh - 60px);
+        }
+        
+        /* ============================================
+           LEFT CONTROL PANEL - 40% WIDTH FIXED
+           ============================================ */
+        .control-panel {
+            width: 40%;
+            background: var(--bg-sidebar);
+            border-radius: 8px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+            height: 100%;
+        }
+        
+        .control-panel-body {
+            padding: 16px 14px;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            min-height: 0;
+        }
+        
+        .control-panel-footer {
+            padding: 14px;
+            background: var(--bg-sidebar);
+            border-top: 2px solid var(--border-accent);
+            flex-shrink: 0;
+        }
+        
+        .control-panel-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .control-panel-body::-webkit-scrollbar-track {
+            background: var(--card-hover);
+        }
+        
+        .control-panel-body::-webkit-scrollbar-thumb {
+            background: var(--text-secondary);
+            border-radius: 3px;
+        }
+        
+        /* Size section expands to fill available space */
+        #sizeSection {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+        
+        /* ============================================
+           SELECTION SECTIONS - INDUSTRIAL STYLING
+           ============================================ */
+        .selection-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid var(--border-accent);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            margin-bottom: 0;
+        }
+        
+        .selection-section#sizeSection {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+        
+        .selection-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .selection-section:hover {
+            border-color: var(--accent-purple);
+            box-shadow: var(--shadow-colored);
+            transform: translateY(-2px);
+        }
+        
+        .selection-section:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .selection-section.active {
+            border-color: var(--active-state);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.02) 0%, rgba(255, 255, 255, 1) 100%);
+        }
+        
+        .selection-section.active::before {
+            background: var(--active-state);
+            transform: scaleX(1);
+        }
+        
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 0;
+        }
+        
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .step-number.complete {
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+            animation: successPulse 0.5s ease;
+        }
+        
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .step-number.complete::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+        }
+        
+        /* ============================================
+           DROPDOWN SELECTORS - INDUSTRIAL DESIGN
+           ============================================ */
+        .selection-dropdown {
+            width: 100%;
+            min-height: 42px;
+            padding: 11px 38px 11px 14px;
+            border: 2px solid var(--border-accent);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            background: white;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        
+        .selection-dropdown:hover:not(:disabled) {
+            border-color: #3B82F6;
+            transform: scale(1.01);
+        }
+        
+        .selection-dropdown:focus {
+            border-color: #3B82F6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .selection-dropdown:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: var(--card-hover);
+        }
+        
+        /* ============================================
+           SIZE GRID - INDUSTRIAL TOUCH BUTTONS
+           ============================================ */
+        .size-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 4px 8px 4px 4px;
+            align-content: start;
+            min-height: 250px;
+            max-height: calc(100vh - 520px);
+        }
+        
+        .size-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .size-grid::-webkit-scrollbar-track {
+            background: var(--card-hover);
+            border-radius: 3px;
+        }
+        
+        .size-grid::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+            border-radius: 3px;
+        }
+        
+        .size-button {
+            min-height: 68px;
+            height: auto;
+            padding: 12px 8px;
+            border: 2px solid var(--border-accent);
+            border-radius: 10px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .size-button:hover:not(.disabled) {
+            border-color: var(--accent-purple);
+            background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 100%);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: var(--shadow-colored);
+        }
+        
+        .size-button.selected {
+            background: linear-gradient(135deg, var(--active-state) 0%, #34D399 100%);
+            border-color: var(--active-state);
+            color: white;
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.4);
+            animation: selectBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes selectBounce {
+            0% { transform: translateY(-4px) scale(1); }
+            50% { transform: translateY(-8px) scale(1.1); }
+            100% { transform: translateY(-4px) scale(1.05); }
+        }
+        
+        .size-button.selected::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .size-button.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: var(--card-hover);
+        }
+        
+        .size-button .count-badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .size-button .size-value {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .size-button .size-label {
+            font-size: 10px;
+            font-weight: 600;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.3;
+        }
+        
+        /* ============================================
+           START BUTTON - INDUSTRIAL GRADE
+           ============================================ */
+        .start-button {
+            width: 100%;
+            min-height: 44px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+        
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.6s;
+        }
+        
+        .start-button:hover:not(:disabled)::before {
+            left: 100%;
+        }
+        
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+        }
+        
+        .start-button:active:not(:disabled) {
+            transform: translateY(-2px) scale(0.98);
+        }
+        
+        .start-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: linear-gradient(135deg, #94A3B8 0%, #CBD5E1 100%);
+            box-shadow: none;
+        }
+        
+        /* ============================================
+           RIGHT JOB CARD PANEL - FLEXIBLE WIDTH
+           ============================================ */
+        .job-card-panel {
+            flex: 1;
+            background: var(--bg-sidebar);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+            border: 1px solid var(--border-accent);
+        }
+        
+        .job-card-header {
+            background: var(--bg-header);
+            padding: 16px 24px;
+            border-bottom: 3px solid var(--active-state);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .job-card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        .job-card-header h2 {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .priority-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .priority-badge:hover {
+            transform: scale(1.05);
+        }
+        
+        .priority-badge.high {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+        }
+        
+        .priority-badge.normal {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+        }
+        
+        .priority-badge.low {
+            background: linear-gradient(135deg, #64748B 0%, #475569 100%);
+            color: white;
+        }
+        
+        .job-card-body {
+            padding: 16px 20px;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: var(--bg-main);
+        }
+        
+        .job-card-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .job-card-body::-webkit-scrollbar-track {
+            background: var(--card-hover);
+        }
+        
+        .job-card-body::-webkit-scrollbar-thumb {
+            background: var(--text-secondary);
+            border-radius: 3px;
+        }
+        
+        /* ============================================
+           ACTIVE SESSION ALERT - INDUSTRIAL STYLING
+           ============================================ */
+        .alert-industrial {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            border: 2px solid var(--active-state);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-industrial .alert-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--active-state);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .alert-industrial .alert-content {
+            flex: 1;
+        }
+        
+        .alert-industrial .alert-title {
+            font-weight: 700;
+            color: var(--success);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        
+        .alert-industrial .alert-text {
+            color: var(--body-text);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .alert-industrial .alert-action {
+            background: var(--active-state);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .alert-industrial .alert-action:hover {
+            background: var(--success);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        /* ============================================
+           DIGITAL JOB CARD - PROFESSIONAL DATA DISPLAY
+           ============================================ */
+        .digital-job-card {
+            background: linear-gradient(135deg, #FFFFFF 0%, #FAFBFC 100%);
+            border-radius: 12px;
+            border: 2px solid var(--border-accent);
+            box-shadow: var(--shadow-lg);
+            padding: 24px;
+            display: none;
+            position: relative;
+            overflow: visible;
+            margin-bottom: 16px;
+        }
+        
+        .digital-job-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667EEA, #764BA2, #EC4899, #F59E0B, #10B981);
+            background-size: 200% 100%;
+            animation: gradientShift 5s linear infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        .digital-job-card.active {
+            display: block;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .job-card-section {
+            margin-bottom: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-accent);
+        }
+        
+        .job-card-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .job-card-two-column {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 28px;
+            padding: 0;
+            margin-bottom: 0;
+        }
+        
+        .job-card-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            min-width: 0;
+        }
+        
+        .job-card-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-accent);
+        }
+        
+        .job-card-section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .job-card-section-title i {
+            color: var(--accent-purple);
+            font-size: 18px;
+        }
+        
+        /* ============================================
+           DATA GRID - TWO-COLUMN LAYOUT
+           ============================================ */
+        .data-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .data-item {
+            background: white;
+            border-radius: 8px;
+            padding: 16px 20px;
+            border: 2px solid var(--border-accent);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            min-height: 56px;
+        }
+        
+        .data-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #667EEA 0%, #764BA2 100%);
+            transform: scaleY(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .data-item:hover {
+            border-color: var(--accent-purple);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.2);
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            transform: translateY(-4px);
+        }
+        
+        .data-item:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .data-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+        
+        .data-label::after {
+            content: ':';
+            margin-left: 4px;
+        }
+        
+        .data-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            flex: 1;
+            letter-spacing: -0.2px;
+            word-break: break-word;
+            text-align: right;
+        }
+        
+        .data-value.highlight {
+            color: var(--active-state);
+            font-size: 16px;
+            font-weight: 800;
+            text-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+        }
+        
+        /* ============================================
+           PRODUCTION TIMELINE - PROFESSIONAL DISPLAY
+           ============================================ */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-accent);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 14px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 4px;
+            width: 10px;
+            height: 10px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        
+        .timeline-item.complete::before {
+            background: var(--active-state);
+        }
+        
+        .timeline-item.active::before {
+            background: #3B82F6;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .timeline-content {
+            background: white;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border-left: 2px solid var(--border-accent);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .timeline-content:hover {
+            border-left-color: #3B82F6;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .timeline-item.complete .timeline-content {
+            border-left-color: var(--active-state);
+        }
+        
+        .timeline-item.active .timeline-content {
+            border-left-color: #3B82F6;
+        }
+        
+        .timeline-title {
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--header-text);
+            margin-bottom: 4px;
+        }
+        
+        .timeline-time {
+            font-size: 10px;
+            color: var(--label-text);
+        }
+        
+        /* ============================================
+           QUALITY CONTROL CHECKPOINTS
+           ============================================ */
+        .checkpoint-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkpoint-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--border-accent);
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .checkpoint-item:hover {
+            border-color: #3B82F6;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .checkpoint-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--card-hover);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        
+        .checkpoint-icon.checked {
+            background: var(--active-state);
+            color: white;
+        }
+        
+        .checkpoint-text {
+            flex: 1;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        /* ============================================
+           EMPTY STATE - PROFESSIONAL MESSAGING
+           ============================================ */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            color: var(--border-accent);
+            margin-bottom: 12px;
+        }
+        
+        .empty-state-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--header-text);
+            margin-bottom: 8px;
+        }
+        
+        .empty-state-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        
+        /* ============================================
+           LOGOUT BUTTON - INDUSTRIAL DESIGN
+           ============================================ */
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .logout-btn:hover {
+            background: #EF4444;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-card);
+        }
+        
+        /* ============================================
+           ALERT MESSAGES - INDUSTRIAL STYLING
+           ============================================ */
+        .alert {
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border: 1px solid;
+            font-size: 13px;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--active-state);
+            color: var(--success);
+        }
+        
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: #EF4444;
+            color: #DC2626;
+        }
+        
+        .alert-warning {
+            background: rgba(217, 119, 6, 0.1);
+            border-color: var(--warning);
+            color: #B45309;
+        }
+        
+        /* ============================================
+           RESPONSIVE & TOUCH OPTIMIZATION
+           ============================================ */
+        @media (max-width: 1600px) {
+            .operator-main {
+                gap: 12px;
+                padding: 12px;
+            }
+            
+            .control-panel-body,
+            .job-card-body {
+                padding: 16px;
+            }
+        }
+        
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            .selection-section,
+            .size-button,
+            .data-item {
+                border-width: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="operator-container">
+        <!-- Industrial Header -->
+        <div class="operator-header">
+            <h1>
+                <i class="fas fa-industry me-3"></i>
+                Magic QC - Inspector Console
+            </h1>
+            <div class="user-info">
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Two-Column Main Layout -->
+        <div class="operator-main">
+            <!-- LEFT: Control Panel -->
+            <div class="control-panel">
+                <div class="control-panel-body">
+                    <!-- Step 1: Brand Selection -->
+                    <div class="selection-section" id="brandSection">
+                        <div class="section-title">
+                            <span class="step-number" id="brandStepNumber">1</span>
+                            <span>Select Brand</span>
+                        </div>
+                        <select class="selection-dropdown" id="brandSelect">
+                            <option value="">-- Choose Brand --</option>
+                            {% for brand in brands %}
+                                <option value="{{ brand }}">{{ brand }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Step 2: Product Type Selection -->
+                    <div class="selection-section" id="articleSection">
+                        <div class="section-title">
+                            <span class="step-number" id="articleStepNumber">2</span>
+                            <span>Product Type</span>
+                        </div>
+                        <select class="selection-dropdown" id="articleSelect" disabled>
+                            <option value="">-- Choose Product Type --</option>
+                            {% for code, name in article_types %}
+                                <option value="{{ code }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Step 3: Size Selection -->
+                    <div class="selection-section" id="sizeSection">
+                        <div class="section-title">
+                            <span class="step-number" id="sizeStepNumber">3</span>
+                            <span>Size Selection</span>
+                        </div>
+                        <div class="size-grid" id="sizeGrid">
+                            <div class="empty-state" style="grid-column: 1 / -1;">
+                                <i class="fas fa-ruler-combined empty-state-icon"></i>
+                                <div class="empty-state-text">Select brand and product type</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Fixed Footer with Start Button -->
+                <div class="control-panel-footer">
+                    <button class="start-button" id="startButton" disabled>
+                        <i class="fas fa-play-circle me-2"></i> START MEASUREMENT
+                    </button>
+                </div>
+            </div>
+
+            <!-- RIGHT: Job Card Panel -->
+            <div class="job-card-panel">
+                <div class="job-card-header">
+                    <h2>
+                        <i class="fas fa-clipboard-list"></i>
+                        Article Job Card
+                    </h2>
+                </div>
+                <div class="job-card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" style="border-radius: 8px;">
+                                {{ message }}
+                                <button type="button" class="text-industrial-gray-600 hover:text-industrial-gray-800" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Active Session Alert Removed -->
+
+                    <!-- Digital Job Card (Hidden by default) -->
+                    <div class="digital-job-card" id="digitalJobCard">
+                        <div class="job-card-two-column">
+                            <!-- Left Column: Product Information -->
+                            <div class="job-card-column">
+                                <div class="job-card-section-title">
+                                    <i class="fas fa-box"></i>
+                                    Product Information
+                                </div>
+                                <div class="data-grid" id="productInfoGrid">
+                                    <!-- Will be populated dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Operator Information -->
+                            <div class="job-card-column">
+                                <div class="job-card-section-title">
+                                    <i class="fas fa-user-check"></i>
+                                    Operator Information
+                                </div>
+                                <div class="data-grid" id="operatorGrid">
+                                    <div class="data-item">
+                                        <div class="data-label">Operator Name</div>
+                                        <div class="data-value">{{ user.username }}</div>
+                                    </div>
+                                    <div class="data-item">
+                                        <div class="data-label">Role</div>
+                                        <div class="data-value">{{ user.role|title }}</div>
+                                    </div>
+                                    <div class="data-item">
+                                        <div class="data-label">Station</div>
+                                        <div class="data-value">QC-01</div>
+                                    </div>
+                                    <div class="data-item">
+                                        <div class="data-label">Status</div>
+                                        <div class="data-value" style="color: var(--success);">Active</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State (Default) -->
+                    <div class="empty-state" id="emptyJobCard">
+                        <i class="fas fa-clipboard-list empty-state-icon"></i>
+                        <div class="empty-state-title">No Product Selected</div>
+                        <div class="empty-state-text">
+                            Select a product from the control panel to begin<br>
+                            Your job card details will appear here
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // ============================================
+        // INDUSTRIAL OPERATOR PANEL - CONTROL SYSTEM
+        // ============================================
+        
+        let selectedBrand = '';
+        let selectedArticle = '';
+        let selectedSize = '';
+        let selectedProduct = null;
+
+        // ============================================
+        // BRAND SELECTION HANDLER
+        // ============================================
+        $('#brandSelect').on('change', function() {
+            selectedBrand = $(this).val();
+            selectedArticle = '';
+            selectedSize = '';
+            selectedProduct = null;
+            
+            // Enable/disable article dropdown
+            $('#articleSelect').prop('disabled', !selectedBrand);
+            $('#articleSelect').val('');
+            
+            // Update step indicators
+            if (selectedBrand) {
+                $('#brandStepNumber').addClass('complete').empty();
+                $('#brandSection').addClass('active');
+            } else {
+                $('#brandStepNumber').removeClass('complete').text('1');
+                $('#brandSection').removeClass('active');
+            }
+            
+            resetSizeGrid();
+            hideJobCard();
+            disableStartButton();
+        });
+
+        // ============================================
+        // ARTICLE SELECTION HANDLER
+        // ============================================
+        $('#articleSelect').on('change', function() {
+            selectedArticle = $(this).val();
+            selectedSize = '';
+            selectedProduct = null;
+            
+            // Update step indicators
+            if (selectedArticle) {
+                $('#articleStepNumber').addClass('complete').empty();
+                $('#articleSection').addClass('active');
+                loadAvailableSizes();
+            } else {
+                $('#articleStepNumber').removeClass('complete').text('2');
+                $('#articleSection').removeClass('active');
+                resetSizeGrid();
+            }
+            
+            hideJobCard();
+            disableStartButton();
+        });
+
+        // ============================================
+        // LOAD AVAILABLE SIZES FROM SERVER
+        // ============================================
+        function loadAvailableSizes() {
+            // Show loading state
+            $('#sizeGrid').html(`
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-spinner fa-spin empty-state-icon"></i>
+                    <div class="empty-state-text">Loading available sizes...</div>
+                </div>
+            `);
+            
+            $.ajax({
+                url: '{% url "available_sizes" %}',
+                data: {
+                    brand: selectedBrand,
+                    article_type: selectedArticle
+                },
+                success: function(response) {
+                    renderSizes(response.sizes);
+                },
+                error: function() {
+                    $('#sizeGrid').html(`
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <i class="fas fa-exclamation-triangle empty-state-icon" style="color: var(--status-red);"></i>
+                            <div class="empty-state-text">Failed to load sizes. Please try again.</div>
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        // ============================================
+        // RENDER SIZE BUTTONS WITH INDUSTRIAL DESIGN
+        // ============================================
+        function renderSizes(sizes) {
+            const grid = $('#sizeGrid');
+            grid.empty();
+            
+            if (sizes.length === 0) {
+                grid.html(`
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-inbox empty-state-icon" style="color: var(--status-amber);"></i>
+                        <div class="empty-state-title">No Products Available</div>
+                        <div class="empty-state-text">No products match this selection</div>
+                    </div>
+                `);
+                return;
+            }
+            
+            // Define all possible size formats
+            const sizeFormats = {
+                'age': [
+                    ['6/7', '6-7 YRS'],
+                    ['7/8', '7-8 YRS'],
+                    ['8/9', '8-9 YRS'],
+                    ['9/10', '9-10 YRS'],
+                    ['10/11', '10-11 YRS'],
+                    ['12/13', '12-13 YRS']
+                ],
+                'standard': [
+                    ['S', 'SMALL'],
+                    ['M', 'MEDIUM'],
+                    ['L', 'LARGE'],
+                    ['XL', 'X-LARGE']
+                ]
+            };
+            
+            // Detect which format the products use
+            const availableSizeCodes = sizes.map(s => s.size);
+            let sizesToShow = [];
+            
+            // Check if products use age-based sizing
+            const hasAgeSizes = availableSizeCodes.some(code => 
+                sizeFormats.age.some(s => s[0] === code)
+            );
+            
+            // Check if products use standard sizing
+            const hasStandardSizes = availableSizeCodes.some(code => 
+                sizeFormats.standard.some(s => s[0] === code)
+            );
+            
+            // Determine which sizes to display
+            if (hasAgeSizes) {
+                sizesToShow = sizeFormats.age;
+            } else if (hasStandardSizes) {
+                sizesToShow = sizeFormats.standard;
+            } else {
+                // If custom sizes, show all available sizes from the data
+                sizesToShow = availableSizeCodes.map(code => [code, code]);
+            }
+            
+            sizesToShow.forEach(sizeOption => {
+                const sizeCode = sizeOption[0];
+                const sizeName = sizeOption[1];
+                const sizeData = sizes.find(s => s.size === sizeCode);
+                
+                const button = $('<div>')
+                    .addClass('size-button')
+                    .attr('data-size', sizeCode);
+                
+                if (sizeData) {
+                    button.html(`
+                        <span class="count-badge">${sizeData.count}</span>
+                        <div class="size-value">${sizeCode}</div>
+                        <span class="size-label">${sizeName}</span>
+                    `);
+                    button.on('click', function(e) {
+                        e.preventDefault();
+                        selectSize(sizeCode);
+                    });
+                } else {
+                    button.addClass('disabled');
+                    button.html(`
+                        <div class="size-value" style="opacity: 0.3;">${sizeCode}</div>
+                        <span class="size-label" style="opacity: 0.3;">${sizeName}</span>
+                    `);
+                }
+                
+                grid.append(button);
+            });
+        }
+
+        // ============================================
+        // SIZE SELECTION HANDLER
+        // ============================================
+        function selectSize(size) {
+            console.log('Industrial Control: Size selected -', size);
+            selectedSize = size;
+            
+            // Update UI with industrial animation
+            $('.size-button').removeClass('selected');
+            const selectedButton = $(`.size-button[data-size="${size}"]`);
+            selectedButton.addClass('selected');
+            
+            // Update step indicator
+            $('#sizeStepNumber').addClass('complete').empty();
+            $('#sizeSection').addClass('active');
+            
+            // Load product details and show job card
+            loadProductDetails();
+        }
+
+        // ============================================
+        // LOAD PRODUCT DETAILS AND POPULATE JOB CARD
+        // ============================================
+        function loadProductDetails() {
+            $.ajax({
+                url: '{% url "products_by_brand" %}',
+                data: {
+                    brand: selectedBrand,
+                    article_type: selectedArticle
+                },
+                success: function(response) {
+                    const product = response.products.find(p => p.size === selectedSize);
+                    if (product) {
+                        selectedProduct = product;
+                        showJobCard(product);
+                        enableStartButton();
+                        updatePriorityBadge('high');
+                    }
+                },
+                error: function() {
+                    console.error('Failed to load product details');
+                }
+            });
+        }
+
+        // ============================================
+        // SHOW DIGITAL JOB CARD WITH PRODUCT DATA
+        // ============================================
+        function showJobCard(product) {
+            // Hide empty state
+            $('#emptyJobCard').hide();
+            
+            // Populate product information grid
+            $('#productInfoGrid').html(`
+                <div class="data-item">
+                    <div class="data-label">PO Number</div>
+                    <div class="data-value">PO-${product.po_number}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Brand</div>
+                    <div class="data-value">${selectedBrand}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Article Type</div>
+                    <div class="data-value">${product.article_type}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Size</div>
+                    <div class="data-value highlight">${product.size}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Color</div>
+                    <div class="data-value">${product.color}</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-label">Quantity</div>
+                    <div class="data-value">${product.quantity} units</div>
+                </div>
+            `);
+            
+            // Operator information is static and already rendered in the template
+            
+            // Show job card with animation
+            $('#digitalJobCard').addClass('active');
+            
+            // Scroll to show job card
+            setTimeout(() => {
+                $('#digitalJobCard')[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 200);
+        }
+
+        // ============================================
+        // HIDE JOB CARD
+        // ============================================
+        function hideJobCard() {
+            $('#digitalJobCard').removeClass('active');
+            $('#emptyJobCard').show();
+        }
+
+        // ============================================
+        // RESET SIZE GRID TO EMPTY STATE
+        // ============================================
+        function resetSizeGrid() {
+            $('#sizeGrid').html(`
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-ruler-combined empty-state-icon"></i>
+                    <div class="empty-state-text">Select brand and product type</div>
+                </div>
+            `);
+            $('#sizeStepNumber').removeClass('complete').text('3');
+            $('#sizeSection').removeClass('active');
+        }
+
+        // ============================================
+        // START BUTTON CONTROL
+        // ============================================
+        function enableStartButton() {
+            $('#startButton')
+                .prop('disabled', false)
+                .css('animation', 'pulse 2s infinite');
+        }
+
+        function disableStartButton() {
+            $('#startButton')
+                .prop('disabled', true)
+                .css('animation', 'none');
+        }
+
+        // ============================================
+        // UPDATE PRIORITY BADGE
+        // ============================================
+        function updatePriorityBadge(level) {
+            const badge = $('#priorityBadge');
+            badge.removeClass('high normal low');
+            
+            switch(level) {
+                case 'high':
+                    badge.addClass('high').html('<i class="fas fa-flag"></i><span>HIGH PRIORITY</span>');
+                    break;
+                case 'normal':
+                    badge.addClass('normal').html('<i class="fas fa-flag"></i><span>NORMAL</span>');
+                    break;
+                case 'low':
+                    badge.addClass('low').html('<i class="fas fa-flag"></i><span>LOW PRIORITY</span>');
+                    break;
+            }
+        }
+
+        // ============================================
+        // START MEASUREMENT SESSION
+        // ============================================
+        $('#startButton').on('click', function() {
+            if (!selectedProduct) return;
+            
+            const button = $(this);
+            button.prop('disabled', true)
+                  .html('<i class="fas fa-spinner fa-spin me-2"></i>STARTING SESSION...');
+            
+            $.ajax({
+                url: '{% url "start_session" %}',
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    product_id: selectedProduct.product_id
+                }),
+                success: function(response) {
+                    if (response.success) {
+                        button.html('<i class="fas fa-check-circle me-2"></i>SESSION STARTED')
+                              .css('background', 'linear-gradient(135deg, var(--safety-green) 0%, var(--safety-green-dark) 100%)');
+                        
+                        setTimeout(() => {
+                            window.location.href = response.redirect_url;
+                        }, 800);
+                    }
+                },
+                error: function(xhr) {
+                    console.error('Error starting session:', xhr);
+                    button.prop('disabled', false)
+                          .html('<i class="fas fa-play-circle me-2"></i>START MEASUREMENT');
+                    
+                    const errorMsg = xhr.responseJSON?.message || 'Failed to start session. Please try again.';
+                    const alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 8px;">
+                            <i class="fas fa-exclamation-circle me-2"></i>${errorMsg}
+                            <button type="button" class="text-industrial-gray-600 hover:text-industrial-gray-800" onclick="this.parentElement.remove()">&times;</button>
+                        </div>
+                    `;
+                    $(alertHtml).prependTo('.job-card-body').delay(5000).fadeOut();
+                }
+            });
+        });
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        $(document).ready(function() {
+            console.log('Industrial Operator Panel Initialized');
+            updatePriorityBadge('normal');
+        });
+    </script>
+</body>
+</html>

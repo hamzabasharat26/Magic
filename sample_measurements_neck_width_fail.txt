@@ -1,0 +1,25 @@
+# Sample Measurement File - H (Neck Width) Special Tolerance Test
+# H has special tolerance of ±0.5 cm (not ±1.0 cm like others)
+# Standard H for 8/9 is 18.3 cm
+# H is 18.9 cm = deviation 0.6 cm > tolerance 0.5 cm → FAIL
+
+A: 56.5
+B: 49.2
+C: 44.0
+D: 46.0
+E: 40.7
+F: 47.0
+G: 43.5
+H: 18.9
+I: 44.7
+J: 20.5
+K: 12.7
+L: 8.0
+M: 6.2
+N: 23.0
+O: 2.2
+P: 5.8
+Q: 2.0
+R: 5.2
+S: 5.0
+T: 3.0
